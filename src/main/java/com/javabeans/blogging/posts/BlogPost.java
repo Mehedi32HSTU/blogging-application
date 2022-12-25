@@ -49,7 +49,7 @@ public class BlogPost {
 
 	@ManyToOne
 	@JoinColumn(name = "post_creator_id")
-	@JsonIgnoreProperties({"roles"})
+	@JsonIgnoreProperties({"roles", "password"})
 	private UserInformation postCreator;
 
 	@OneToMany

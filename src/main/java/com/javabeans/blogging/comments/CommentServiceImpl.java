@@ -3,6 +3,7 @@ package com.javabeans.blogging.comments;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +13,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.javabeans.blogging.enums.EApprovalStatus;
+import com.javabeans.blogging.enums.ERole;
 import com.javabeans.blogging.posts.BlogPost;
 import com.javabeans.blogging.posts.BlogPostRepository;
 import com.javabeans.blogging.response.MessageResponse;
+import com.javabeans.blogging.security.SecurityService;
 import com.javabeans.blogging.users.UserInformation;
 import com.javabeans.blogging.users.UserInformationRepository;
+import com.javabeans.blogging.util.UserInformationUtil;
 
 @Service
 public class CommentServiceImpl implements CommentService{
@@ -31,25 +35,23 @@ public class CommentServiceImpl implements CommentService{
 
 	@Autowired
 	private CommentRepository commentRepository;
+
+	@Autowired
+	private SecurityService securityService;
 	
 	@Override
 	public ResponseEntity<?> createNewComment(Long blogPostId, Comment commentReq) {
 		try {
 			logger.info("<<<<<---------- createNewComment method is called ---------->>>>>");
-			/*
-			 * TODO: Have to add validations
-			 */
+
 			Optional<BlogPost> blogPostOpt = blogPostRepository.findById(blogPostId);
 			if(blogPostOpt.isPresent()) {
 				BlogPost blogPost = blogPostOpt.get();
 				if(blogPost.getApprovalStatus().equals(EApprovalStatus.APPROVED)) {
 					List<Comment> allComments = blogPost.getComments();
-					/*
-					 * TODO: Have to add validations
-					 * have to get logged uder and set to blog post creator.
-					 */
-//					UserInformation loggedUser = getAuthorizedUser();
-//					commentReq.setCommentCreator(loggedUser);
+
+					UserInformation loggedUser = securityService.getAuthorizedUser();
+					commentReq.setCommentCreator(loggedUser);
 					commentReq.setCreatedDate(new Date());
 					Comment savedComment = commentRepository.save(commentReq);
 					allComments.add(savedComment);
@@ -79,8 +81,15 @@ public class CommentServiceImpl implements CommentService{
 			if(!commentOpt.isPresent())
 				return ResponseEntity.status(HttpStatus.NOT_FOUND)
 						.body(new MessageResponse("Comment Not Found"));
+			Comment comment = commentOpt.get();
 
-			return ResponseEntity.ok().body(commentOpt.get());
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			if(!comment.getCommentCreator().getUserId().equals(loggedUser.getUserId()) && !UserInformationUtil.hasDesiredRole(loggedUser, ERole.ROLE_ADMIN)) {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body(new MessageResponse("Comment Not Found"));
+			}
+
+			return ResponseEntity.ok().body(comment);
 		} catch (Exception e) {
 			logger.error("<<<<<---------- Exception {} has occured in getCommentById method. ---------->>>>>", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Exception "+e.getMessage()+" has occured."));
@@ -91,7 +100,13 @@ public class CommentServiceImpl implements CommentService{
 	public ResponseEntity<?> getAllComments() {
 		try {
 			logger.info("<<<<<---------- getAllComments method is called ---------->>>>>");
-
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			if(!UserInformationUtil.hasDesiredRole(loggedUser, ERole.ROLE_ADMIN)) {
+				return ResponseEntity.ok().body(
+						commentRepository.findAll().stream().filter( comment -> 
+						comment.getCommentCreator().getUserId().equals(loggedUser.getUserId())).collect(Collectors.toList())
+				);
+			}
 			return ResponseEntity.ok().body(commentRepository.findAll());
 		} catch (Exception e) {
 			logger.error("<<<<<---------- Exception {} has occured in getAllComments method. ---------->>>>>", e.getMessage());
@@ -127,22 +142,7 @@ public class CommentServiceImpl implements CommentService{
 				return ResponseEntity.status(HttpStatus.NOT_FOUND)
 						.body(new MessageResponse("Comment Not Found"));
 			Comment comment = commentOpt.get();
-
-			/*
-			 * TODO: Add validation so that:
-			 * Creator can delete his/her own post.
-			 * Admin can delete any ones post.
-			 */
-//			UserInformation loggedUser = getAuthorizedUser();
-//			if(hasRoleAdmin(loggedUser) || (comment.getCommentCreator().getUserId()).equals(loggedUser.getUserId())) {
-//				commentRepository.delete(comment);
-//			}
-//			else {
-//				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//						.body(new MessageResponse("Not Allowed to Delete The Comment."));
-//			}
-
-			commentRepository.delete(comment);  // Have to remove this when security is integrated.
+			commentRepository.delete(comment);
 
 			return ResponseEntity.ok().body(new MessageResponse("Comment Deleted Successfully."));
 		} catch (Exception e) {

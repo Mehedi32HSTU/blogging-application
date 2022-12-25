@@ -7,10 +7,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.javabeans.blogging.enums.EApprovalStatus;
+import com.javabeans.blogging.enums.ERole;
 import com.javabeans.blogging.response.MessageResponse;
+import com.javabeans.blogging.roles.Roles;
+import com.javabeans.blogging.security.SecurityService;
+import com.javabeans.blogging.util.UserInformationUtil;
 
 @Service
 public class UserInformationServiceImpl implements UserInformationService {
@@ -19,14 +24,28 @@ public class UserInformationServiceImpl implements UserInformationService {
 	@Autowired
 	private UserInformationRepository userInformationRepository;
 
+	@Autowired
+	private SecurityService securityService;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Override
 	public ResponseEntity<?> addNewUser(UserInformation userInformationReq) {
 		try {
 			logger.info("<<<<<---------- addNewUser method is called ---------->>>>>");
-			/*
-			 * TODO: Have to add validations
-			 */
-			userInformationReq.setApprovalStatus(EApprovalStatus.PENDING); // Have to chnage while adding security.
+
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			if(Objects.nonNull(loggedUser) && UserInformationUtil.hasDesiredRole(loggedUser, ERole.ROLE_ADMIN))
+				userInformationReq.setApprovalStatus(EApprovalStatus.APPROVED);
+			else
+				userInformationReq.setApprovalStatus(EApprovalStatus.PENDING);
+			if(userInformationReq.getRoles().size() < 1){
+				Roles role = new Roles();
+				role.setId(2L);
+				userInformationReq.getRoles().add( role);
+			}
+			userInformationReq.setPassword(passwordEncoder.encode(userInformationReq.getPassword()));
 			userInformationReq.setActive(true);
 			UserInformation userInformation = userInformationRepository.save(userInformationReq);
 			return ResponseEntity.ok().body(userInformation);

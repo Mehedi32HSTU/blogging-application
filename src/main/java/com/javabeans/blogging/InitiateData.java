@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.javabeans.blogging.enums.EApprovalStatus;
@@ -22,6 +23,9 @@ public class InitiateData implements CommandLineRunner{
 	@Autowired
 	private RolesRepository rolesRepository;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Override
 	public void run(String... args) throws Exception {
 		if(!(rolesRepository.findAll().size() > 0)) {
@@ -39,7 +43,7 @@ public class InitiateData implements CommandLineRunner{
 			userInformation.setUsername("default_admin");
 			userInformation.setActive(true);
 			userInformation.setApprovalStatus(EApprovalStatus.APPROVED);
-			userInformation.setPassword("admin_1234");
+			userInformation.setPassword(passwordEncoder.encode("admin_1234"));
 			userInformation.setRoles(Arrays.asList(savedAdminRole));
 
 			userInformationRepository.save(userInformation);

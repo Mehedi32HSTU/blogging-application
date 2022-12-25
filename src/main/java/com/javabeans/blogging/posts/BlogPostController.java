@@ -2,6 +2,7 @@ package com.javabeans.blogging.posts;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,24 +21,28 @@ public class BlogPostController {
 	private BlogPostService blogPostService;
 	
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('ADMIN') or @securityService.isUserApprovedActive()")
 	public ResponseEntity<?> createNewBlogPost( @RequestBody BlogPost blogPost){
 
 		return blogPostService.createNewBlogPost(blogPost);
 	}
-	
+
 	@RequestMapping(value = "/{blogPostId}/get", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('ADMIN') or @securityService.isUserApprovedActive()")
 	public ResponseEntity<?> getBlogPostById(@PathVariable("blogPostId") Long blogPostId){
 
 		return blogPostService.getBlogPostById(blogPostId);
 	}
 	
 	@RequestMapping(value = "/all", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('ADMIN') or @securityService.isUserApprovedActive()")
 	public ResponseEntity<?> getAllBlogPost(){
 
 		return blogPostService.getAllBlogPost();
 	}
 
 	@RequestMapping(value = "/byStatus", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('ADMIN') or @securityService.isUserApprovedActive()")
 	public ResponseEntity<?> getAllBlogPostByStatus(@RequestParam(name = "approval-status",
 		defaultValue = "APPROVED") EApprovalStatus approvalStatus) {
 
@@ -45,24 +50,28 @@ public class BlogPostController {
 	}
 
 	@RequestMapping(value = "/creator/{postCreatorId}/get", method = RequestMethod.GET)
+	@PreAuthorize("hasRole('ADMIN') or @securityService.isUserApprovedActive()")
 	public ResponseEntity<?> getAllBlogPostByCreatorId(@PathVariable("postCreatorId") Long postCreatorId) {
 
 		return blogPostService.getAllBlogPostByCreatorId(postCreatorId);
 	}
 
 	@RequestMapping(value = "/{blogPostId}/approve", method = RequestMethod.PATCH)
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> approveBlogPostById(@PathVariable("blogPostId") Long blogPostId) {
 
 		return blogPostService.approveBlogPostById(blogPostId);
 	}
 
 	@RequestMapping(value = "/{blogPostId}/delete", method = RequestMethod.DELETE)
+	@PreAuthorize("hasRole('ADMIN') or @securityService.isContentOwner('blog-post', #blogPostId)")
 	public ResponseEntity<?> deleteBlogPostByPostId(@PathVariable("blogPostId") Long blogPostId) {
 		
 		return blogPostService.deleteBlogPostByPostId(blogPostId);
 	}
 
 	@RequestMapping(value = "/{blogPostId}/react", method = RequestMethod.POST)
+	@PreAuthorize("hasRole('ADMIN') or @securityService.isUserApprovedActive()")
 	public ResponseEntity<?> giveReactionToBlogPost(@PathVariable("blogPostId") Long blogPostId,
 			@RequestParam(name = "reaction", defaultValue = "LIKE") EReaction reaction) {
 
@@ -70,8 +79,9 @@ public class BlogPostController {
 	}
 
 	@RequestMapping(value = "/reaction/{reactionId}/remove", method = RequestMethod.DELETE)
+	@PreAuthorize("hasRole('ADMIN') or @securityService.isContentOwner('reaction', #reactionId)")
 	public ResponseEntity<?> removeReactionFromBlogPost(@PathVariable("reactionId") Long reactionId) {
-		
+
 		return blogPostService.removeReactionFromBlogPost(reactionId);
 	}
 

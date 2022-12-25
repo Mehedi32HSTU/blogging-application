@@ -3,6 +3,7 @@ package com.javabeans.blogging.posts;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +14,12 @@ import org.springframework.stereotype.Service;
 
 import com.javabeans.blogging.enums.EApprovalStatus;
 import com.javabeans.blogging.enums.EReaction;
+import com.javabeans.blogging.enums.ERole;
 import com.javabeans.blogging.response.MessageResponse;
+import com.javabeans.blogging.security.SecurityService;
 import com.javabeans.blogging.users.UserInformation;
 import com.javabeans.blogging.users.UserInformationRepository;
+import com.javabeans.blogging.util.UserInformationUtil;
 
 @Service
 public class BlogPostServiceImpl implements BlogPostService {
@@ -31,19 +35,23 @@ public class BlogPostServiceImpl implements BlogPostService {
 	@Autowired
 	private PostReactionRepository postReactionRepository;
 
+	@Autowired
+	private SecurityService securityService;
+
 	@Override
 	public ResponseEntity<?> createNewBlogPost(BlogPost blogPostReq) {
 		try {
 			logger.info("<<<<<---------- createNewBlogPost method is called ---------->>>>>");
-			/*
-			 * TODO: Have to add validations
-			 * have to get logged uder and set to blog post creator.
-			 */
-//			UserInformation loggedUser = getAuthorizedUser();
-//			blogPostReq.setPostCreator(loggedUser);
+
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			if(UserInformationUtil.hasDesiredRole(loggedUser, ERole.ROLE_ADMIN))
+				blogPostReq.setApprovalStatus(EApprovalStatus.APPROVED);
+			else
+				blogPostReq.setApprovalStatus(EApprovalStatus.PENDING);
+
+			blogPostReq.setPostCreator(loggedUser);
 			
 			blogPostReq.setCreatedDate(new Date());
-			blogPostReq.setApprovalStatus(EApprovalStatus.PENDING); // by default approved only if posted by admin.
 
 			BlogPost savedBlogPost = blogPostRepository.save(blogPostReq);
 			return ResponseEntity.ok().body(savedBlogPost);
@@ -61,8 +69,16 @@ public class BlogPostServiceImpl implements BlogPostService {
 			if(!blogPostOpt.isPresent())
 				return ResponseEntity.status(HttpStatus.NOT_FOUND)
 						.body(new MessageResponse("BlogPost Not Found"));
+			BlogPost blogPost = blogPostOpt.get();
 
-			return ResponseEntity.ok().body(blogPostOpt.get());
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			if(!blogPost.getPostCreator().getUserId().equals(loggedUser.getUserId()) && !UserInformationUtil.hasDesiredRole(loggedUser, ERole.ROLE_ADMIN)) {
+				if(blogPost.getApprovalStatus().equals(EApprovalStatus.PENDING))
+					return ResponseEntity.status(HttpStatus.NOT_FOUND)
+							.body(new MessageResponse("BlogPost Not Found"));
+			}
+
+			return ResponseEntity.ok().body(blogPost);
 		} catch (Exception e) {
 			logger.error("<<<<<---------- Exception {} has occured in getBlogPostById method. ---------->>>>>", e.getMessage());
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Exception "+e.getMessage()+" has occured."));
@@ -73,6 +89,14 @@ public class BlogPostServiceImpl implements BlogPostService {
 	public ResponseEntity<?> getAllBlogPost() {
 		try {
 			logger.info("<<<<<---------- getAllBlogPost method is called ---------->>>>>");
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			if(!UserInformationUtil.hasDesiredRole(loggedUser, ERole.ROLE_ADMIN)) {
+				return ResponseEntity.ok().body(
+					blogPostRepository.findAll().stream().filter( blogPost -> 
+					blogPost.getApprovalStatus().equals(EApprovalStatus.APPROVED) ||
+					blogPost.getPostCreator().getUserId().equals(loggedUser.getUserId())).collect(Collectors.toList())
+				);
+			}
 
 			return ResponseEntity.ok().body(blogPostRepository.findAll());
 		} catch (Exception e) {
@@ -85,11 +109,14 @@ public class BlogPostServiceImpl implements BlogPostService {
 	public ResponseEntity<?> getAllBlogPostByStatus(EApprovalStatus approvalStatus) {
 		try {
 			logger.info("<<<<<---------- getAllBlogPostByStatus method is called ---------->>>>>");
-			/*
-			 * TODO:
-			 * Add validation so that without admin no user can see pending posts.
-			 * Without admin, other users will be able to see only approved posts.
-			 */
+
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			if(!approvalStatus.equals(EApprovalStatus.APPROVED) && !UserInformationUtil.hasDesiredRole(loggedUser, ERole.ROLE_ADMIN)) {
+				return ResponseEntity.ok().body(
+						blogPostRepository.findByApprovalStatusOrderByIdAsc(approvalStatus).stream().filter( blogPost -> 
+						blogPost.getPostCreator().getUserId().equals(loggedUser.getUserId())).collect(Collectors.toList())
+					);
+			}
 
 			return ResponseEntity.ok().body(blogPostRepository.findByApprovalStatusOrderByIdAsc(approvalStatus));
 		} catch (Exception e) {
@@ -106,6 +133,13 @@ public class BlogPostServiceImpl implements BlogPostService {
 			if(!userInformationRepository.existsByUserId(postCreatorId))
 				return ResponseEntity.status(HttpStatus.NOT_FOUND)
 						.body(new MessageResponse("Post Creator Not Found"));
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			if(!postCreatorId.equals(loggedUser.getUserId()) && !UserInformationUtil.hasDesiredRole(loggedUser, ERole.ROLE_ADMIN)) {
+				return ResponseEntity.ok().body(
+						blogPostRepository.findByPostCreatorId(postCreatorId).stream().filter( blogPost -> 
+						blogPost.getApprovalStatus().equals(EApprovalStatus.APPROVED)).collect(Collectors.toList())
+					);
+			}
 
 			return ResponseEntity.ok().body(blogPostRepository.findByPostCreatorId(postCreatorId));
 		} catch (Exception e) {
@@ -144,20 +178,6 @@ public class BlogPostServiceImpl implements BlogPostService {
 						.body(new MessageResponse("BlogPost Not Found"));
 			BlogPost blogPost = blogPostOpt.get();
 
-			/*
-			 * TODO: Add validation so that:
-			 * Creator can delete his/her own post.
-			 * Admin can delete any ones post.
-			 */
-//			UserInformation loggedUser = getAuthorizedUser();
-//			if(hasRoleAdmin(loggedUser) || (blogPost.getPostCreator().getUserId()).equals(loggedUser.getUserId())) {
-//				blogPostRepository.delete(blogPost);
-//			}
-//			else {
-//				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//						.body(new MessageResponse("Not Allowed to Delete The Post."));
-//			}
-
 			blogPostRepository.delete(blogPost);  // Have to remove this when security is integrated.
 
 			return ResponseEntity.ok().body(new MessageResponse("BlogPost Deleted Successfully."));
@@ -182,19 +202,14 @@ public class BlogPostServiceImpl implements BlogPostService {
 						.body(new MessageResponse("BlogPost is Not Approved Yet."));
 			PostReaction postReaction = new PostReaction();
 			postReaction.setReaction(reaction);
-			/*
-			 * TODO: Add validation so that:
-			 * 
-			 */
-//			UserInformation loggedUser = getAuthorizedUser();
-//			postReaction.setReactorId(loggedUser.getUserId());
-			postReaction.setReactorId(12L);
+
+			UserInformation loggedUser = securityService.getAuthorizedUser();
+			postReaction.setReactorId(loggedUser.getUserId());
 
 			PostReaction savedPostReaction = postReactionRepository.save(postReaction);
 			blogPost.getPostReactions().add(savedPostReaction);
 
 			BlogPost savedBlogPost = blogPostRepository.save(blogPost);
-
 			return ResponseEntity.ok().body(savedBlogPost);
 		} catch (Exception e) {
 			logger.error("<<<<<---------- Exception {} has occured in giveReactionToBlogPost method. ---------->>>>>", e.getMessage());
@@ -212,22 +227,7 @@ public class BlogPostServiceImpl implements BlogPostService {
 						.body(new MessageResponse("Reaction Not Found"));
 			PostReaction postReaction = postReactionOpt.get();
 
-			/*
-			 * TODO: Add validation so that:
-			 * Creator can delete his/her own post.
-			 * Admin can delete any ones post.
-			 */
-//			UserInformation loggedUser = getAuthorizedUser();
-//			if( postReaction.getReactorId().equals(loggedUser.getUserId())) {
-//				postReactionRepository.delete(postReaction);
-//			}
-//			else {
-//				return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//						.body(new MessageResponse("Not Allowed to Delete The Reaction."));
-//			}
-
 			postReactionRepository.delete(postReaction);
-
 			return ResponseEntity.ok().body(new MessageResponse("PostReaction Deleted Successfully."));
 		} catch (Exception e) {
 			logger.error("<<<<<---------- Exception {} has occured in removeReactionFromBlogPost method. ---------->>>>>", e.getMessage());

@@ -31,7 +31,7 @@ public class Comment {
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "comment_creator_id")
-	@JsonIgnoreProperties({"roles"})
+	@JsonIgnoreProperties({"roles", "password"})
 	private UserInformation commentCreator;
 
 	@Column(name = "created_date")
