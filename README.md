@@ -41,6 +41,7 @@ For interacting with application one can use a browser. By default, application 
 
 ##### As this is a RESTFull Project, for making it easy to demontrate and explore, all the APIs collection file is attached in the repository. To Explore the project, import the collection into POSTMAN REST Client and use the APIs.
 ##### All APIs are categorized according to their functionalities.
+    POSTMAN Collection file Name: Blogging_Application.postman_collection.json
 
     baseAPI : http://localhost:9091
 #### Database:
