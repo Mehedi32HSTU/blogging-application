@@ -1,0 +1,649 @@
+{
+	"info": {
+		"_postman_id": "7e391d73-88b3-4a3f-a6a1-3f3125ac0a5c",
+		"name": "Blogging_Application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16038447"
+	},
+	"item": [
+		{
+			"name": "User_Information",
+			"item": [
+				{
+					"name": "AddNewUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"fullName\":\"Prince Saha\",\r\n    \"username\": \"prince.saha\",\r\n    \"password\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAPI}}/user-info/add",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"user-info",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All User Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/user-info/all",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"user-info",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Information By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/user-info/10/get",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"user-info",
+								"10",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By Username",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/user-info/byUsername?username=default_admin",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"user-info",
+								"byUsername"
+							],
+							"query": [
+								{
+									"key": "username",
+									"value": "default_admin"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By Approval Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/user-info/byApproval?approval-status=APPROVED",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"user-info",
+								"byApproval"
+							],
+							"query": [
+								{
+									"key": "approval-status",
+									"value": "APPROVED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Gel User By Activity",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/user-info/byActivity?isActive=true",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"user-info",
+								"byActivity"
+							],
+							"query": [
+								{
+									"key": "isActive",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change User Activity",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/user-info/4/change-activity?isActive=true",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"user-info",
+								"4",
+								"change-activity"
+							],
+							"query": [
+								{
+									"key": "isActive",
+									"value": "true"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change User Approval",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/user-info/9/change-approval?approval-status=APPROVED",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"user-info",
+								"9",
+								"change-approval"
+							],
+							"query": [
+								{
+									"key": "approval-status",
+									"value": "APPROVED"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Blog Post",
+			"item": [
+				{
+					"name": "Create Blog Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"postTitle\":\"Product Marketing\",\r\n    \"postDescription\":\"Product Marketing Description 11\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/add",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Blog Post",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/all",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Blog Post By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/23/get",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"23",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Blog Post by Approval Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/byStatus?approval-status=APPROVED",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"byStatus"
+							],
+							"query": [
+								{
+									"key": "approval-status",
+									"value": "APPROVED"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Post BY Ctreator Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/creator/3/get",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"creator",
+								"3",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Approve Post By Post Id",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/23/approve",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"23",
+								"approve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Blog Post",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/15/delete",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"15",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Give Reaction To A Blog Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/6/react?reaction=LIKE",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"6",
+								"react"
+							],
+							"query": [
+								{
+									"key": "reaction",
+									"value": "LIKE"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Reaction",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/blog-post/reaction/8/remove",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"blog-post",
+								"reaction",
+								"8",
+								"remove"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwiZnVsbE5hbWUiOiJEZWZhdWx0IEFkbWluIiwicm9sZXMiOlt7ImF1dGhvcml0eSI6IlJPTEVfQURNSU4ifV0sImFwcHJvdmFsU3RhdHVzIjoiQVBQUk9WRUQiLCJhY3RpdmUiOnRydWUsInN1YiI6ImRlZmF1bHRfYWRtaW4iLCJpYXQiOjE2NzE5Nzk4MzQsImV4cCI6MTY3MjA2NjIzNH0._Sa7p36nZCk_j49E4L17LzE4T17c3dO8kU9PohuPNnoTN41y9sC4Y9t10QTQ594iVUSBNPfKNBHfhfylQSbEPQ",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Add Comment on a Post",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"commentDescription\":\"Hello comment by by Bappy\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAPI}}/comment/blog-post/6/add",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"comment",
+								"blog-post",
+								"6",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Comments By Post Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/comment/blog-post/6/all",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"comment",
+								"blog-post",
+								"6",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Comment By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/comment/5/get",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"comment",
+								"5",
+								"get"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/comment/all",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"comment",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment By Comment Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseAPI}}/comment/3/delete",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"comment",
+								"3",
+								"delete"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "eyJhbGciOiJIUzUxMiJ9.eyJpZCI6NiwiZnVsbE5hbWUiOiJKYW1pdWwgSXNsYW0iLCJyb2xlcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9VU0VSIn1dLCJhcHByb3ZhbFN0YXR1cyI6IkFQUFJPVkVEIiwiYWN0aXZlIjp0cnVlLCJzdWIiOiJqYW1pdWwuaXNsYW0iLCJpYXQiOjE2NzE5NjM2NzIsImV4cCI6MTY3MjA1MDA3Mn0.f4BT1zB8EussqEfU4HaoEAEoYPIRdPqZEpl0KkyVMQN9sACawoYKBwGOoXYoM7noH_eIM_-ygzbneRyfH1c67A",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Log In",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"ferdous.islam\",\r\n    \"password\":\"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseAPI}}/auth/login",
+							"host": [
+								"{{baseAPI}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseAPI",
+			"value": "http://localhost:9091",
+			"type": "string"
+		}
+	]
+}
